@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Microeconomics AI Exam Coach — Interactive MVP Guide</title>
+  <style>
+    :root {
+      --bg: #f7f4ed;
+      --panel: #fffdf8;
+      --panel-2: #f1ede3;
+      --text: #20201f;
+      --muted: #69655d;
+      --border: #ded8cb;
+      --purple-bg:#EEEDFE; --purple:#3C3489; --purple-border:#AFA9EC;
+      --teal-bg:#E1F5EE; --teal:#085041; --teal-border:#5DCAA5;
+      --coral-bg:#FAECE7; --coral:#712B13; --coral-border:#F0997B;
+      --amber-bg:#FAEEDA; --amber:#633806; --amber-border:#EF9F27;
+      --blue-bg:#E6F1FB; --blue:#0C447C; --blue-border:#85B7EB;
+      --green-bg:#EAF3DE; --green:#27500A; --green-border:#97C459;
+      --pink-bg:#FBEAF0; --pink:#72243E; --pink-border:#ED93B1;
+      --gray-bg:#F1EFE8; --gray:#444441; --gray-border:#B4B2A9;
+      --shadow: 0 12px 28px rgba(48, 43, 33, .08);
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, #fffaf0 0, var(--bg) 38%, #efe8dc 100%);
+      color: var(--text);
+      line-height: 1.55;
+    }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .app { max-width: 1180px; margin: 0 auto; padding: 22px; }
+    .hero {
+      display: grid;
+      grid-template-columns: 1.25fr .75fr;
+      gap: 18px;
+      align-items: stretch;
+      margin-bottom: 18px;
+    }
+    .card {
+      background: rgba(255,253,248,.9);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .hero-main { padding: 28px; position: relative; overflow: hidden; }
+    .hero-main::after {
+      content:""; position:absolute; width: 240px; height: 240px; border-radius:50%;
+      right: -80px; top: -90px; background: var(--purple-bg); border:1px solid var(--purple-border);
+      opacity:.8;
+    }
+    .hero-main > * { position:relative; z-index:1; }
+    .eyebrow { color: var(--purple); font-weight: 700; letter-spacing:.08em; text-transform: uppercase; font-size: 12px; }
+    h1 { font-size: clamp(30px, 4.8vw, 56px); line-height: .98; margin: 10px 0 14px; letter-spacing: -0.045em; }
+    h2 { font-size: 26px; margin: 0 0 8px; letter-spacing:-.02em; }
+    h3 { font-size: 18px; margin: 0 0 7px; }
+    p { margin: 0 0 10px; color: var(--muted); }
+    .hero-p { font-size: 17px; max-width: 720px; color: #3c3832; }
+    .hero-side { padding: 22px; display:flex; flex-direction:column; gap: 12px; }
+    .metric { padding: 13px; border:1px solid var(--border); border-radius: 14px; background: var(--panel); }
+    .metric strong { display:block; font-size: 26px; line-height:1; margin-bottom:5px; }
+    .pill-row { display:flex; flex-wrap:wrap; gap:8px; margin-top: 14px; }
+    .pill { display:inline-flex; align-items:center; gap:6px; padding: 6px 10px; border-radius: 999px; border:1px solid var(--border); background: var(--panel); color: #37332f; font-size: 13px; font-weight: 600; }
+    .pill.purple { background:var(--purple-bg); color:var(--purple); border-color:var(--purple-border); }
+    .pill.teal { background:var(--teal-bg); color:var(--teal); border-color:var(--teal-border); }
+    .pill.amber { background:var(--amber-bg); color:var(--amber); border-color:var(--amber-border); }
+    .pill.coral { background:var(--coral-bg); color:var(--coral); border-color:var(--coral-border); }
+    .nav-wrap { position: sticky; top: 0; z-index: 10; background: rgba(247,244,237,.86); backdrop-filter: blur(12px); padding: 10px 0; margin: 0 0 14px; }
+    .nav { display:flex; gap:7px; flex-wrap: wrap; }
+    button, .button {
+      font: inherit; cursor:pointer; border: 1px solid var(--border); background: var(--panel); color: var(--text);
+      padding: 9px 12px; border-radius: 12px; font-weight: 700; transition:.14s ease;
+    }
+    button:hover { transform: translateY(-1px); box-shadow: 0 5px 14px rgba(30,25,17,.08); }
+    button.active { background: var(--text); color: white; border-color: var(--text); }
+    .toolbar { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin: 14px 0; }
+    input[type="search"] { flex:1; min-width: 260px; padding: 11px 13px; border:1px solid var(--border); background:var(--panel); border-radius:13px; font:inherit; }
+    .section { display:none; animation: fade .16s ease; }
+    .section.active { display:block; }
+    @keyframes fade { from {opacity:.4; transform:translateY(4px)} to {opacity:1; transform:none} }
+    .grid { display:grid; gap:14px; }
+    .grid.two { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .grid.three { grid-template-columns: repeat(3, minmax(0,1fr)); }
+    .grid.four { grid-template-columns: repeat(4, minmax(0,1fr)); }
+    .panel { padding: 20px; }
+    .mini { font-size: 13px; }
+    .muted { color: var(--muted); }
+    .flow { display:flex; flex-direction:column; gap:0; }
+    .flow-step { display:grid; grid-template-columns: 40px 1fr; gap:12px; }
+    .dot { width:34px; height:34px; border-radius:50%; display:grid; place-items:center; font-weight:800; margin-top: 3px; }
+    .line { width:1px; background:var(--border); flex:1; margin:5px 0 0 17px; min-height: 22px; }
+    .dotwrap { display:flex; flex-direction:column; align-items:stretch; }
+    .step-body { padding-bottom: 13px; }
+    .step-body h3 { margin:0 0 2px; font-size: 16px; }
+    .badge { display:inline-flex; border-radius:7px; padding: 2px 7px; font-size: 11px; font-weight:800; border:1px solid var(--border); margin-right: 4px; white-space:nowrap; }
+    .b-purple { background:var(--purple-bg); color:var(--purple); border-color:var(--purple-border); }
+    .b-teal { background:var(--teal-bg); color:var(--teal); border-color:var(--teal-border); }
+    .b-coral { background:var(--coral-bg); color:var(--coral); border-color:var(--coral-border); }
+    .b-amber { background:var(--amber-bg); color:var(--amber); border-color:var(--amber-border); }
+    .b-blue { background:var(--blue-bg); color:var(--blue); border-color:var(--blue-border); }
+    .b-green { background:var(--green-bg); color:var(--green); border-color:var(--green-border); }
+    .b-gray { background:var(--gray-bg); color:var(--gray); border-color:var(--gray-border); }
+    .b-pink { background:var(--pink-bg); color:var(--pink); border-color:var(--pink-border); }
+    .accordion { border-top:1px solid var(--border); }
+    .acc-item { border-bottom:1px solid var(--border); }
+    .acc-head { width:100%; border:0; background:transparent; display:flex; justify-content:space-between; align-items:center; padding: 15px 2px; border-radius:0; text-align:left; box-shadow:none; }
+    .acc-head:hover { transform:none; box-shadow:none; }
+    .acc-body { display:none; padding: 0 4px 16px; }
+    .acc-item.open .acc-body { display:block; }
+    .phase { border-left: 6px solid var(--gray-border); }
+    .phase.done { opacity:.72; }
+    .phase-header { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+    .checklist label { display:flex; gap:9px; align-items:flex-start; padding:7px 0; color: var(--muted); }
+    .checklist input { margin-top:5px; transform: scale(1.1); }
+    .progressbar { height:12px; background:var(--panel-2); border-radius:999px; overflow:hidden; border:1px solid var(--border); }
+    .progressbar > div { height:100%; background: linear-gradient(90deg, var(--teal-border), var(--purple-border)); width:0%; transition:.2s ease; }
+    .api { display:grid; grid-template-columns: 84px 1fr; gap:10px; padding: 10px; border:1px solid var(--border); border-radius:13px; background:#fffefb; margin: 8px 0; }
+    .method { display:grid; place-items:center; font-weight:900; border-radius:10px; font-size:13px; }
+    .get { background: var(--blue-bg); color:var(--blue); border:1px solid var(--blue-border); }
+    .post { background: var(--green-bg); color:var(--green); border:1px solid var(--green-border); }
+    .patch { background: var(--amber-bg); color:var(--amber); border:1px solid var(--amber-border); }
+    .delete { background: var(--coral-bg); color:var(--coral); border:1px solid var(--coral-border); }
+    .route { font-family: ui-monospace, monospace; font-size: 14px; font-weight:700; color:#282522; word-break:break-all; }
+    .table { width:100%; border-collapse:collapse; overflow:hidden; border-radius:12px; }
+    .table th, .table td { border-bottom:1px solid var(--border); text-align:left; padding:10px; vertical-align:top; }
+    .table th { font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); background:var(--panel-2); }
+    .codebox { background:#1f1f1e; color:#f8f4e8; padding:16px; border-radius:15px; overflow:auto; font-size: 13px; line-height:1.65; }
+    .diagram { background: var(--panel-2); border:1px dashed var(--border); border-radius: 16px; padding:16px; overflow:auto; }
+    .node { display:inline-block; padding:8px 12px; border:1px solid var(--border); border-radius:12px; background:var(--panel); margin:5px; font-weight:800; }
+    .arrow { color:var(--muted); font-weight:900; }
+    .tabs-small { display:flex; flex-wrap:wrap; gap:6px; margin: 10px 0 14px; }
+    .tabs-small button { padding: 7px 10px; font-size: 13px; }
+    .hidden-by-search { display:none !important; }
+    .footer { margin: 28px 0 8px; text-align:center; color:var(--muted); font-size: 13px; }
+    @media (max-width: 860px) {
+      .hero, .grid.two, .grid.three, .grid.four { grid-template-columns: 1fr; }
+      .app { padding: 14px; }
+      .hero-main { padding: 20px; }
+      .api { grid-template-columns: 1fr; }
+    }
+    @media print {
+      .nav-wrap, .toolbar, button { display:none !important; }
+      .section { display:block !important; page-break-inside:avoid; }
+      body { background:white; }
+      .card { box-shadow:none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="hero">
+      <div class="card hero-main">
+        <div class="eyebrow">Interactive MVP Guide</div>
+        <h1>Microeconomics AI Exam Coach</h1>
+        <p class="hero-p">Build a web app where a student uploads Microeconomics materials, takes a Bloom-tagged diagnostic quiz, receives a weakness report, follows an adaptive study guide, and practices with time-adaptive mock exams.</p>
+        <div class="pill-row">
+          <span class="pill purple">AI question generation</span>
+          <span class="pill teal">Topic × Skill × Bloom analytics</span>
+          <span class="pill amber">Adaptive study guide</span>
+          <span class="pill coral">Mock exam loop</span>
+        </div>
+      </div>
+      <div class="card hero-side">
+        <div class="metric"><strong>20Q</strong><span class="muted">Bloom diagnostic quiz</span></div>
+        <div class="metric"><strong>10 → 40Q</strong><span class="muted">Mock exams adapt to days left</span></div>
+        <div class="metric"><strong>v1, v2, v3...</strong><span class="muted">Study guides are versioned after every mock</span></div>
+        <div class="progressbar"><div id="globalProgress"></div></div>
+        <p class="mini"><span id="progressText">0%</span> of MVP checklist completed. Your progress is saved in this browser.</p>
+      </div>
+    </div>
+
+    <div class="nav-wrap">
+      <div class="nav" id="nav"></div>
+    </div>
+
+    <div class="toolbar">
+      <input type="search" id="search" placeholder="Search guide: REST API, MongoDB, Bloom, mock exam, grading..." />
+      <button id="expandAll">Expand all</button>
+      <button id="collapseAll">Collapse all</button>
+      <button id="resetProgress">Reset progress</button>
+    </div>
+
+    <section class="section active" id="overview">
+      <div class="grid two">
+        <div class="card panel">
+          <h2>Project overview</h2>
+          <p>This MVP is not a generic AI tutor. It is a course-specific exam coach. The student gives the app their actual Microeconomics materials, and the system creates a diagnostic loop around their real course.</p>
+          <div class="flow" id="mainFlow"></div>
+        </div>
+        <div class="card panel">
+          <h2>The startup value</h2>
+          <p>Most students do not know exactly what they are weak at. This app answers the specific question:</p>
+          <div class="codebox">“What should I study today, based on my slides, my exam date, my quiz mistakes, and my mock exam trend?”</div>
+          <br />
+          <h3>Core promise</h3>
+          <p>Upload slides. Take a diagnostic. See weak topic × skill × Bloom level. Practice with adaptive mocks. Watch the study plan update as scores improve.</p>
+          <h3>MVP success metric</h3>
+          <p>A user uploads one Microeconomics slide deck and gets a useful weakness report plus a study guide within one session.</p>
+        </div>
+      </div>
+
+      <div class="card panel" style="margin-top:14px">
+        <h2>System architecture</h2>
+        <div class="diagram">
+          <span class="node">React + Vite Frontend</span><span class="arrow">→</span>
+          <span class="node">FastAPI REST API</span><span class="arrow">→</span>
+          <span class="node">Service Layer</span><span class="arrow">→</span>
+          <span class="node">AI Agents / Workflows</span><span class="arrow">→</span>
+          <span class="node">MongoDB + File Storage</span>
+        </div>
+        <p class="mini">Rule: the backend controls security, database writes, grading rules, and validation. AI performs bounded tasks: extraction, generation, grading feedback, and study-guide planning.</p>
+      </div>
+    </section>
+
+    <section class="section" id="mvp">
+      <div class="card panel">
+        <h2>MVP build order</h2>
+        <p>Build the diagnostic loop first. Add mock exams after the first value loop works.</p>
+        <div id="phases" class="grid"></div>
+      </div>
+    </section>
+
+    <section class="section" id="api">
+      <div class="card panel">
+        <h2>REST API design</h2>
+        <p>Use resource-based endpoints. Keep route handlers thin. Put business logic in services.</p>
+        <div class="tabs-small" id="apiFilters"></div>
+        <div id="apiList"></div>
+      </div>
+    </section>
+
+    <section class="section" id="data">
+      <div class="card panel">
+        <h2>MongoDB data model</h2>
+        <p>Use MongoDB documents for course-specific learning state. Store aggregate scores to avoid recalculating dashboard charts from raw attempts every time.</p>
+        <div class="grid three" id="collections"></div>
+      </div>
+    </section>
+
+    <section class="section" id="ai">
+      <div class="card panel">
+        <h2>AI system design</h2>
+        <p>Think of AI as a service inside the product, not as the whole product. Every AI output must be structured, validated, and saved with metadata.</p>
+        <div class="accordion" id="aiAccordion"></div>
+      </div>
+    </section>
+
+    <section class="section" id="frontend">
+      <div class="card panel">
+        <h2>Frontend map</h2>
+        <p>Each page has one clear job. Keep server data in TanStack Query and local UI state in Zustand.</p>
+        <div class="grid two" id="frontendPages"></div>
+      </div>
+    </section>
+
+    <section class="section" id="timeline">
+      <div class="card panel">
+        <h2>18-day MVP timeline</h2>
+        <p>This is aggressive but realistic if you focus only on Microeconomics and the diagnostic-to-study-guide loop first.</p>
+        <table class="table" id="timelineTable"></table>
+      </div>
+    </section>
+
+    <section class="section" id="quality">
+      <div class="card panel">
+        <h2>Best practices checklist</h2>
+        <p>Use this as the engineering definition of done before demoing the MVP.</p>
+        <div class="grid two" id="qualityGrid"></div>
+      </div>
+    </section>
+
+    <div class="footer">Microeconomics AI Exam Coach — Interactive MVP Guide</div>
+  </div>
+
+<script>
+const navItems = [
+  ["overview", "Overview"], ["mvp", "MVP Build"], ["api", "REST API"], ["data", "Data Model"],
+  ["ai", "AI/Agents"], ["frontend", "Frontend"], ["timeline", "Timeline"], ["quality", "Best Practices"]
+];
+
+const flow = [
+  ["Upload slides / syllabus / old exams", "Student starts with real course material, not generic content.", "gray"],
+  ["AI extracts & maps Microeconomics topics", "Map to a fixed Microeconomics template, then let the student review.", "teal"],
+  ["Student reviews + edits topics", "Human-in-the-loop review prevents bad topic extraction from poisoning the rest of the app.", "green"],
+  ["AI generates 20-question Bloom diagnostic", "Questions are balanced across Bloom L1–L6 and tagged by topic + skill.", "purple"],
+  ["Student answers → system grades", "MCQ/calculation by code; open answers by AI rubric.", "blue"],
+  ["Weakness report: topic × skill × Bloom", "This is the core insight layer of the product.", "coral"],
+  ["Baseline study guide generated", "Day-by-day plan from weak topics and Bloom gaps.", "amber"],
+  ["Time-adaptive mock exam generated", "Question count and difficulty adapt to days until exam.", "purple"],
+  ["Mock exam scored + tracked", "Append score_history and compare vs diagnostic / previous mock.", "teal"],
+  ["Adaptive study guide regenerated", "New version uses updated score trend and remaining time.", "green"]
+];
+
+const phases = [
+  {
+    id:"p1", title:"Phase 1 — Foundation", color:"blue", goal:"Local app runs with auth, courses, MongoDB, and clean project structure.",
+    tasks:["Create FastAPI backend structure: api / services / repositories / schemas / models.", "Create React + Vite + TypeScript frontend.", "Connect MongoDB Atlas or local MongoDB.", "Add health check, CORS, env config, logging, global error format.", "Implement register/login/JWT and course CRUD."],
+    done:"User can register, log in, create a Microeconomics course, and enter exam date."
+  },
+  {
+    id:"p2", title:"Phase 2 — Upload + Extraction", color:"teal", goal:"Student uploads materials and backend extracts text.",
+    tasks:["Implement PDF/PPTX upload endpoint.", "Validate file size and extension.", "Save file metadata in uploaded_files.", "Extract text with page/slide references.", "Show extraction status in frontend."],
+    done:"User uploads slides and sees extraction_status move from pending to done."
+  },
+  {
+    id:"p3", title:"Phase 3 — Topic Extraction", color:"green", goal:"AI extracts topics and student reviews them.",
+    tasks:["Build fixed Microeconomics topic template.", "Prompt AI to extract topics only from uploaded material.", "Map topics to template: Supply/Demand, Elasticity, Costs, Market Structures, etc.", "Validate topic JSON with Pydantic.", "Build TopicList with edit/merge/delete."],
+    done:"User can approve a list of course topics before generating the diagnostic."
+  },
+  {
+    id:"p4", title:"Phase 4 — Diagnostic Quiz", color:"purple", goal:"Generate and take a 20-question Bloom diagnostic.",
+    tasks:["Generate questions by topic + Bloom level.", "Validate question JSON and reject invalid outputs.", "Create diagnostic quiz with 20 questions.", "Build quiz UI: timer, question card, input types, progress bar.", "Submit answers and save attempts."],
+    done:"User completes diagnostic and receives a score."
+  },
+  {
+    id:"p5", title:"Phase 5 — Weakness Report", color:"coral", goal:"Turn attempts into useful learning analytics.",
+    tasks:["Calculate accuracy by topic.", "Calculate accuracy by skill.", "Calculate accuracy by Bloom level.", "Compute weakness_score using accuracy, time, hints.", "Build WeakTopicTable and TopicSkillBloomGrid."],
+    done:"User sees exactly which topic × skill × Bloom level is weak."
+  },
+  {
+    id:"p6", title:"Phase 6 — Study Guide", color:"amber", goal:"Generate the baseline adaptive study guide.",
+    tasks:["Create study_guides collection with version field.", "Generate guide from weak topics, Bloom gaps, and exam date.", "Validate dates and duration.", "Show DayPlanCard UI.", "Preserve old guide versions."],
+    done:"User receives a day-by-day study plan after diagnostic."
+  },
+  {
+    id:"p7", title:"Phase 7 — Mock Exams", color:"purple", goal:"Create time-adaptive mock exams.",
+    tasks:["Implement time bands: 14+, 7–13, 3–6, 1–2, exam day.", "Select question count: 40, 25, 15, 10, or confidence checklist.", "Boost weak topics and weak Bloom levels.", "Prevent repeated mock questions.", "Build mock exam simulator UI."],
+    done:"User can generate and take a mock exam based on days until exam."
+  },
+  {
+    id:"p8", title:"Phase 8 — Score Tracking + Loop", color:"pink", goal:"Close the feedback loop.",
+    tasks:["Grade mock exam.", "Compute bloom_scores, topic_scores, vs_diagnostic, vs_previous_mock.", "Append score_history row.", "Detect trend: improving / stagnant / declining.", "Regenerate study guide as new version."],
+    done:"After a mock, user sees score trend and a regenerated study guide."
+  }
+];
+
+const apiGroups = {
+  auth: [
+    ["POST", "/auth/register", "Create account."], ["POST", "/auth/login", "Return JWT token."], ["GET", "/auth/me", "Get current user."]
+  ],
+  courses: [
+    ["POST", "/courses", "Create course with exam_date."], ["GET", "/courses", "List user courses."], ["GET", "/courses/{course_id}", "Course detail with computed days_until_exam."], ["PATCH", "/courses/{course_id}", "Update course metadata."], ["DELETE", "/courses/{course_id}", "Delete course."]
+  ],
+  uploads: [
+    ["POST", "/courses/{course_id}/uploads", "Upload PDF/PPTX, return pending file_id."], ["GET", "/courses/{course_id}/uploads", "List uploaded files."], ["GET", "/uploads/{upload_id}", "Get extraction status and metadata."]
+  ],
+  topics: [
+    ["POST", "/courses/{course_id}/extract-topics", "AI extracts topics from uploaded text."], ["GET", "/courses/{course_id}/topics", "List topics."], ["POST", "/courses/{course_id}/topics", "Create custom topic."], ["PATCH", "/topics/{topic_id}", "Edit topic."], ["DELETE", "/topics/{topic_id}", "Delete topic."]
+  ],
+  quizzes: [
+    ["POST", "/courses/{course_id}/questions/generate", "Generate validated questions."], ["POST", "/courses/{course_id}/quizzes/diagnostic", "Create 20Q diagnostic."], ["GET", "/quizzes/{quiz_id}", "Get quiz without hidden answer data."], ["POST", "/quizzes/{quiz_id}/submit", "Grade diagnostic and save attempts."], ["GET", "/quizzes/{quiz_id}/results", "Diagnostic results and weaknesses."]
+  ],
+  mocks: [
+    ["POST", "/courses/{course_id}/mock-exams/generate", "Generate time-adaptive mock exam."], ["GET", "/courses/{course_id}/mock-exams", "List mock exams and latest scores."], ["GET", "/mock-exams/{mock_exam_id}", "Get mock exam without answer keys."], ["POST", "/mock-exams/{mock_exam_id}/submit", "Grade mock, append score_history, trigger study guide regeneration."], ["GET", "/mock-exams/{mock_exam_id}/results", "Full result review."]
+  ],
+  progress: [
+    ["GET", "/courses/{course_id}/score-history", "Return diagnostic + mock score events."], ["GET", "/courses/{course_id}/readiness", "Return readiness %, topic %, Bloom %, trend."], ["GET", "/courses/{course_id}/progress/topics", "Topic progress with trend."], ["GET", "/courses/{course_id}/progress/bloom-trend", "L1–L6 trend over time."], ["GET", "/courses/{course_id}/study-guide/latest", "Latest study guide."], ["POST", "/courses/{course_id}/study-guide/generate", "Generate new guide version."]
+  ]
+};
+
+const collections = [
+  ["users", "Auth profile: email, display_name, language, created_at.", "blue"],
+  ["courses", "Course metadata: user_id, name, university, language, exam_date. Compute days_until_exam on read.", "purple"],
+  ["uploaded_files", "File metadata, extracted_text, extraction_status, uploaded_at.", "teal"],
+  ["topics", "Approved topic list mapped to Microeconomics template with bloom_skills.", "green"],
+  ["questions", "Generated questions with topic_id, skill, bloom_level, type, answer, explanation, source ref.", "coral"],
+  ["quizzes", "Diagnostic/practice quiz documents with question_ids and Bloom distribution.", "amber"],
+  ["attempts", "Raw diagnostic/practice answers: score, topic, skill, Bloom, time, hint use.", "gray"],
+  ["mock_exams", "Time-band exam: mock_number, question_count, duration, weak_topic_boost.", "purple"],
+  ["mock_exam_attempts", "One sitting: total_score, topic_scores, bloom_scores, answers, deltas.", "pink"],
+  ["score_history", "Append-only progress log for charts and trend detection.", "teal"],
+  ["study_guides", "Versioned day-by-day plans generated after diagnostic and mocks.", "amber"]
+];
+
+const aiItems = [
+  ["Topic Extraction Agent", "Extracts Microeconomics topics from uploaded material, maps them to a fixed template, and returns evidence references. Student must review before use.", ["Use only source material", "Return JSON", "Require evidence", "Allow editing"]],
+  ["Question Generation Agent", "Generates Bloom-tagged questions by topic, skill, difficulty, and source chunks. This agent must be heavily validated.", ["Match requested Bloom level", "Include answer + explanation", "No duplicate questions", "Store source reference"]],
+  ["Grading Agent", "Grades open-ended answers with a rubric. MCQ and numeric answers should be graded by code, not AI.", ["Return score 0.0–1.0", "Explain missing concepts", "Use rubrics", "Do not be wording-biased"]],
+  ["Weakness Analysis", "Mostly code, not LLM. Calculates weak topic × skill × Bloom level from attempts, time, score, and hint usage.", ["Aggregate by topic", "Aggregate by Bloom", "Calculate weakness_score", "Use AI only for explanation text"]],
+  ["Study Guide Agent", "Generates day-by-day study plan from weaknesses, exam date, time band, score trend, and available practice questions.", ["No dates after exam", "Respect time band", "Prioritize weakest gaps", "Version every guide"]],
+  ["Mock Exam Orchestrator", "Code-controlled workflow that chooses time band, Bloom distribution, weak-topic boost, and question selection.", ["14+ days = 40Q", "7–13 days = 25Q", "3–6 days = 15Q", "1–2 days = 10Q", "Exam day = checklist only"]]
+];
+
+const frontendPages = [
+  ["Dashboard", "/", "CourseCard, ExamCountdown, ReadinessGauge, ScoreTrendMiniChart, NewMockExamButton", "Shows current course, exam countdown, latest score trend, and next action."],
+  ["Upload + Topic Review", "/courses/:id/setup", "FileDropzone, ExtractionStatusBadge, TopicList, EditTopicModal", "Upload materials, wait for extraction, review AI topics."],
+  ["Diagnostic Quiz", "/quizzes/:id", "QuestionCard, BloomLevelIndicator, Timer, ProgressBar", "Student takes the 20-question diagnostic."],
+  ["Diagnostic Results", "/quizzes/:id/results", "WeakTopicTable, BloomRadarChart, TopicSkillBloomGrid", "Shows core weakness report and baseline study guide."],
+  ["Mock Exam Hub", "/courses/:id/mock-exams", "TimeBandBanner, MockExamCard, ScoreProgressChart", "Generate mocks, see score history."],
+  ["Mock Exam", "/mock-exams/:id", "QuestionNavigator, ExamTimer, FlagQuestionButton", "Exam simulator with timer and question navigation."],
+  ["Mock Results", "/mock-exams/:id/results", "ScoreSummaryCard, VsDiagnosticBadge, BloomTrendChart", "Review mock score, deltas, topic breakdown, updated guide banner."],
+  ["Study Guide", "/courses/:id/study-guide", "DayPlanCard, GuideVersionSelector, PracticeQuizButton", "Day-by-day adaptive study plan."],
+  ["Progress Dashboard", "/courses/:id/progress", "ScoreProgressChart, TopicProgressCard, HistoryTimeline", "Full improvement view."]
+];
+
+const timeline = [
+  ["Day 1–2", "Foundation", "Repo setup, FastAPI, React, MongoDB, auth, course CRUD."],
+  ["Day 3–4", "Upload + Extraction", "Upload PDF/PPTX, save files, extract text, show status."],
+  ["Day 5–6", "Topic Extraction", "AI extracts topics, maps to template, topic review UI."],
+  ["Day 7–9", "Diagnostic Quiz", "Generate questions, quiz UI, submit, grade, attempts."],
+  ["Day 10", "Weakness Report", "Topic × skill × Bloom analytics and results page."],
+  ["Day 11–12", "Study Guide", "Generate baseline guide and display day-by-day plan."],
+  ["Day 13–15", "Mock Exams", "Time bands, question selection, exam simulator."],
+  ["Day 16", "Score Tracking", "score_history, trend, vs diagnostic, vs previous mock."],
+  ["Day 17", "Adaptive Loop", "Regenerate study guide after mock."],
+  ["Day 18", "Polish", "Testing, demo data, deployment, UI improvements."]
+];
+
+const quality = [
+  ["REST API", ["Resource-based routes", "Thin controllers", "Service layer for logic", "Consistent error shape", "Correct HTTP status codes"]],
+  ["Security", ["JWT auth", "Every query scoped by user_id", "No answer keys before submit", "File size/type limits", "CORS locked in production"]],
+  ["AI Reliability", ["Structured JSON output", "Pydantic validation", "Prompt versioning", "Source references", "Fallback when source material is insufficient"]],
+  ["Database", ["Indexes on user_id/course_id", "Append-only score_history", "Versioned study_guides", "Denormalize topic_name and bloom_level for analytics", "No permanent days_until_exam storage"]],
+  ["Testing", ["Auth tests", "Upload tests", "Question validation tests", "Grading tests", "Mock exam time-band tests", "Study guide validation tests"]],
+  ["Product", ["Student can complete core loop in one session", "Weakness report is understandable", "Study guide is actionable", "Mock result compares against baseline", "User can report bad questions"]]
+];
+
+function colorClass(c){ return 'b-' + c; }
+function dotStyle(c){
+  const map = {
+    purple:['var(--purple-bg)','var(--purple)','var(--purple-border)'], teal:['var(--teal-bg)','var(--teal)','var(--teal-border)'], coral:['var(--coral-bg)','var(--coral)','var(--coral-border)'], amber:['var(--amber-bg)','var(--amber)','var(--amber-border)'], blue:['var(--blue-bg)','var(--blue)','var(--blue-border)'], green:['var(--green-bg)','var(--green)','var(--green-border)'], pink:['var(--pink-bg)','var(--pink)','var(--pink-border)'], gray:['var(--gray-bg)','var(--gray)','var(--gray-border)']
+  }[c];
+  return `background:${map[0]};color:${map[1]};border:1px solid ${map[2]}`;
+}
+function renderNav(){
+  const nav = document.getElementById('nav');
+  nav.innerHTML = navItems.map(([id,label], i)=>`<button class="${i===0?'active':''}" data-tab="${id}">${label}</button>`).join('');
+  nav.addEventListener('click', e => {
+    const btn = e.target.closest('button[data-tab]'); if(!btn) return;
+    document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+    document.getElementById(btn.dataset.tab).classList.add('active');
+    window.scrollTo({top:0, behavior:'smooth'});
+  });
+}
+function renderFlow(){
+  document.getElementById('mainFlow').innerHTML = flow.map((f,i)=>`
+    <div class="flow-step searchable">
+      <div class="dotwrap"><div class="dot" style="${dotStyle(f[2])}">${i+1}</div>${i<flow.length-1?'<div class="line"></div>':''}</div>
+      <div class="step-body"><h3>${f[0]}</h3><p>${f[1]}</p></div>
+    </div>`).join('');
+}
+function renderPhases(){
+  document.getElementById('phases').innerHTML = phases.map(p=>`
+    <div class="card panel phase searchable" id="phase-${p.id}" style="border-left-color: var(--${p.color}-border)">
+      <div class="phase-header">
+        <div><span class="badge ${colorClass(p.color)}">${p.title}</span><h3 style="margin-top:8px">${p.goal}</h3></div>
+        <label class="pill"><input type="checkbox" class="phase-check" data-phase="${p.id}"> Done</label>
+      </div>
+      <div class="checklist">${p.tasks.map((t,idx)=>`<label><input type="checkbox" class="task-check" data-task="${p.id}-${idx}"> <span>${t}</span></label>`).join('')}</div>
+      <div class="metric"><strong style="font-size:15px">Done when</strong><span class="muted">${p.done}</span></div>
+    </div>`).join('');
+}
+function renderApi(active='all'){
+  const filters = ['all', ...Object.keys(apiGroups)];
+  document.getElementById('apiFilters').innerHTML = filters.map(f=>`<button class="${f===active?'active':''}" data-api-filter="${f}">${f}</button>`).join('');
+  const groups = active==='all'?Object.entries(apiGroups):[[active, apiGroups[active]]];
+  document.getElementById('apiList').innerHTML = groups.map(([name, endpoints])=>`
+    <div class="searchable"><h3 style="margin-top:16px"><span class="badge b-gray">${name}</span></h3>
+    ${endpoints.map(e=>`<div class="api"><div class="method ${e[0].toLowerCase()}">${e[0]}</div><div><div class="route">${e[1]}</div><p>${e[2]}</p></div></div>`).join('')}</div>`).join('');
+}
+function renderCollections(){
+  document.getElementById('collections').innerHTML = collections.map(c=>`
+    <div class="card panel searchable"><span class="badge ${colorClass(c[2])}">${c[0]}</span><p style="margin-top:10px">${c[1]}</p></div>`).join('');
+}
+function renderAI(){
+  document.getElementById('aiAccordion').innerHTML = aiItems.map((a,i)=>`
+    <div class="acc-item searchable ${i===0?'open':''}">
+      <button class="acc-head"><strong>${a[0]}</strong><span>+</span></button>
+      <div class="acc-body"><p>${a[1]}</p><div class="pill-row">${a[2].map(x=>`<span class="pill teal">${x}</span>`).join('')}</div></div>
+    </div>`).join('');
+}
+function renderFrontend(){
+  document.getElementById('frontendPages').innerHTML = frontendPages.map(p=>`
+    <div class="card panel searchable"><span class="badge b-blue">${p[0]}</span><p class="route" style="margin-top:9px">${p[1]}</p><p><strong>Components:</strong> ${p[2]}</p><p>${p[3]}</p></div>`).join('');
+}
+function renderTimeline(){
+  document.getElementById('timelineTable').innerHTML = `<thead><tr><th>Time</th><th>Focus</th><th>Deliverable</th></tr></thead><tbody>${timeline.map(r=>`<tr class="searchable"><td><strong>${r[0]}</strong></td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}</tbody>`;
+}
+function renderQuality(){
+  document.getElementById('qualityGrid').innerHTML = quality.map((q,qi)=>`
+    <div class="card panel searchable"><h3>${q[0]}</h3><div class="checklist">${q[1].map((x,idx)=>`<label><input type="checkbox" class="quality-check" data-quality="q${qi}-${idx}"> <span>${x}</span></label>`).join('')}</div></div>`).join('');
+}
+function saveChecks(){
+  const data = {};
+  document.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
+    const key = cb.dataset.task || cb.dataset.phase || cb.dataset.quality;
+    if(key) data[key]=cb.checked;
+  });
+  localStorage.setItem('microecon-mvp-progress', JSON.stringify(data));
+  updateProgress();
+}
+function loadChecks(){
+  const data = JSON.parse(localStorage.getItem('microecon-mvp-progress') || '{}');
+  document.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
+    const key = cb.dataset.task || cb.dataset.phase || cb.dataset.quality;
+    if(key && data[key]) cb.checked = true;
+  });
+  updateProgress();
+}
+function updateProgress(){
+  const boxes = [...document.querySelectorAll('.task-check, .quality-check')];
+  const done = boxes.filter(b=>b.checked).length;
+  const pct = boxes.length ? Math.round(done / boxes.length * 100) : 0;
+  document.getElementById('globalProgress').style.width = pct + '%';
+  document.getElementById('progressText').textContent = pct + '%';
+  phases.forEach(p=>{
+    const phaseBox = document.querySelector(`.phase-check[data-phase="${p.id}"]`);
+    const taskBoxes = [...document.querySelectorAll(`.task-check[data-task^="${p.id}-"]`)];
+    const complete = taskBoxes.length && taskBoxes.every(b=>b.checked);
+    if(phaseBox) phaseBox.checked = complete;
+    const card = document.getElementById(`phase-${p.id}`); if(card) card.classList.toggle('done', complete);
+  });
+}
+function setupInteractions(){
+  document.addEventListener('change', e=>{
+    if(e.target.matches('.phase-check')){
+      const id = e.target.dataset.phase;
+      document.querySelectorAll(`.task-check[data-task^="${id}-"]`).forEach(cb=>cb.checked=e.target.checked);
+    }
+    if(e.target.matches('input[type="checkbox"]')) saveChecks();
+  });
+  document.addEventListener('click', e=>{
+    const head = e.target.closest('.acc-head');
+    if(head) head.closest('.acc-item').classList.toggle('open');
+    const filter = e.target.closest('button[data-api-filter]');
+    if(filter) renderApi(filter.dataset.apiFilter);
+  });
+  document.getElementById('expandAll').onclick = () => document.querySelectorAll('.acc-item').forEach(i=>i.classList.add('open'));
+  document.getElementById('collapseAll').onclick = () => document.querySelectorAll('.acc-item').forEach(i=>i.classList.remove('open'));
+  document.getElementById('resetProgress').onclick = () => { localStorage.removeItem('microecon-mvp-progress'); document.querySelectorAll('input[type="checkbox"]').forEach(cb=>cb.checked=false); updateProgress(); };
+  document.getElementById('search').addEventListener('input', e=>{
+    const q = e.target.value.trim().toLowerCase();
+    document.querySelectorAll('.searchable').forEach(el=>{
+      el.classList.toggle('hidden-by-search', q && !el.textContent.toLowerCase().includes(q));
+    });
+  });
+}
+
+renderNav(); renderFlow(); renderPhases(); renderApi(); renderCollections(); renderAI(); renderFrontend(); renderTimeline(); renderQuality(); setupInteractions(); loadChecks();
+</script>
+</body>
+</html>
