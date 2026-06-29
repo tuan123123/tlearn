@@ -86,7 +86,7 @@ When you upload a file:
    - `page_refs`
    - `extraction_status = "done"` or `"failed"`
 
-DOCX is mentioned in the product goal, but Phase 2 currently rejects it because the detailed extraction spec only defined PDF/PPTX page and slide extraction.
+DOCX is mentioned in the product goal.
 
 ## Environment variables
 
