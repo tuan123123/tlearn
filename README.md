@@ -87,6 +87,7 @@ When you upload a file:
    - `extraction_status = "done"` or `"failed"`
 
 DOCX is mentioned in the product goal.
+DOCX is mentioned in the product goal.
 
 ## Phase 3 topic review behavior
 
