@@ -1,16 +1,22 @@
 import { useForm } from "react-hook-form"
-import { Link, useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 
 import type { CreateCourseRequest } from "../api/types"
+import PageBackActions from "../components/PageBackActions"
 import { useCreateCourse } from "../hooks/useCourses"
+import { languageFromUser, uiText } from "../i18n"
+import { useAuthStore } from "../store/authStore"
 
 function NewCoursePage() {
   const navigate = useNavigate()
+  const user = useAuthStore((state) => state.user)
+  const language = languageFromUser(user?.language)
+  const text = uiText[language]
   const createCourse = useCreateCourse()
   const { register, handleSubmit } = useForm<CreateCourseRequest>({
     defaultValues: {
       name: "Microeconomics",
-      language: "en",
+      language,
     },
   })
 
@@ -22,40 +28,38 @@ function NewCoursePage() {
 
   return (
     <main className="mx-auto min-h-screen max-w-2xl px-6 py-10">
-      <Link className="font-semibold text-emerald-700" to="/">
-        Back to dashboard
-      </Link>
+      <PageBackActions />
       <h1 className="mt-6 text-4xl font-bold tracking-tight text-slate-950">
-        Create a course
+        {text.createCourse}
       </h1>
       <p className="mt-3 text-slate-600">
-        Add your Microeconomics exam date so the coach can track the countdown.
+        {text.createCourseHint}
       </p>
 
       <form className="mt-8 space-y-4" onSubmit={handleSubmit(onSubmit)}>
         <label className="block">
-          <span className="text-sm font-medium text-slate-700">Course name</span>
+          <span className="text-sm font-medium text-slate-700">{text.courseName}</span>
           <input
             className="mt-1 w-full rounded-xl border border-slate-300 px-4 py-3"
             {...register("name", { required: true })}
           />
         </label>
         <label className="block">
-          <span className="text-sm font-medium text-slate-700">University</span>
+          <span className="text-sm font-medium text-slate-700">{text.university}</span>
           <input
             className="mt-1 w-full rounded-xl border border-slate-300 px-4 py-3"
             {...register("university", { required: true })}
           />
         </label>
         <label className="block">
-          <span className="text-sm font-medium text-slate-700">Language</span>
+          <span className="text-sm font-medium text-slate-700">{text.courseLanguage}</span>
           <input
             className="mt-1 w-full rounded-xl border border-slate-300 px-4 py-3"
             {...register("language", { required: true })}
           />
         </label>
         <label className="block">
-          <span className="text-sm font-medium text-slate-700">Exam date</span>
+          <span className="text-sm font-medium text-slate-700">{text.examDate}</span>
           <input
             className="mt-1 w-full rounded-xl border border-slate-300 px-4 py-3"
             type="date"
@@ -65,7 +69,7 @@ function NewCoursePage() {
 
         {createCourse.isError ? (
           <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
-            Could not create course. Check that the backend and MongoDB are running.
+            {text.createCourseError}
           </p>
         ) : null}
 
@@ -74,7 +78,7 @@ function NewCoursePage() {
           disabled={createCourse.isPending}
           type="submit"
         >
-          {createCourse.isPending ? "Creating..." : "Create course"}
+          {createCourse.isPending ? text.creating : text.createCourse}
         </button>
       </form>
     </main>

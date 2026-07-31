@@ -88,6 +88,57 @@ When you upload a file:
 
 DOCX is mentioned in the product goal, but Phase 2 currently rejects it because the detailed extraction spec only defined PDF/PPTX page and slide extraction.
 
+## Phase 3 topic review behavior
+
+After at least one uploaded file has `extraction_status = "done"`, the course setup page shows topic review.
+
+When you click **Extract Topics**:
+
+1. FastAPI loads extracted text from ready uploads.
+2. The backend asks OpenAI to map the material to the fixed Microeconomics topic template.
+3. AI topics are validated with Pydantic.
+4. Invalid topics are skipped.
+5. Valid topics are saved in MongoDB under the `topics` collection.
+6. The frontend lets you edit, delete, add, approve, and confirm topics.
+
+Set these backend variables in `backend\.env`:
+
+```env
+OPENAI_API_KEY=your-real-openai-api-key
+OPENAI_TOPIC_MODEL=gpt-5.4-mini
+```
+
+The topic names are stored as canonical English template values in MongoDB. The frontend has an English/Vietnamese toggle, so Vietnamese labels are shown in the UI without changing the stored topic identity.
+
+For example:
+
+- `Supply and Demand` → `Cung và cầu`
+- `Price Elasticity` → `Độ co giãn theo giá`
+- `Consumer Theory` → `Lý thuyết người tiêu dùng`
+
+Vietnamese documents are supported by the topic extraction prompt. The AI is told to recognize Vietnamese aliases such as `ngoại tác`, `hàng hóa công`, `độc quyền`, `cạnh tranh hoàn hảo`, and `thương mại quốc tế`, then map them back to the fixed English topic keys. Evidence quotes stay in the original document language.
+
+## Phase 4 diagnostic quiz behavior
+
+After topics are approved, open `/courses/:id/diagnostic` and click **Generate Diagnostic Quiz**.
+
+The backend will:
+
+1. Generate Bloom-tagged questions from approved topics and extracted materials.
+2. Save questions in MongoDB under `questions`.
+3. Create a diagnostic quiz under `quizzes`.
+4. Return quiz questions without `correct_answer` or `explanation`.
+5. Save submitted answers under `attempts`.
+6. Reveal correct answers and explanations only from `/quizzes/:id/results`.
+
+Frontend pages:
+
+- `/courses/:id/diagnostic`
+- `/quizzes/:id`
+- `/quizzes/:id/results`
+
+Important safety rule: `GET /quizzes/:id` intentionally strips answers before submission. Use `/quizzes/:id/results` only after submission to review answers.
+
 ## Environment variables
 
 Backend variables live in `backend\.env`:
@@ -98,6 +149,8 @@ Backend variables live in `backend\.env`:
 - `JWT_EXPIRE_MINUTES`: how long login tokens last
 - `FRONTEND_URL`: production frontend URL for CORS
 - `ENVIRONMENT`: use `development` locally
+- `OPENAI_API_KEY`: OpenAI API key used for topic extraction
+- `OPENAI_TOPIC_MODEL`: model used for topic extraction
 
 Frontend variables live in `frontend\.env`:
 

@@ -71,6 +71,12 @@ function LoginPage() {
           Create an account
         </Link>
       </p>
+      <p className="mt-3 text-center text-sm text-slate-500">
+        Want to peek first?{" "}
+        <Link className="font-semibold text-emerald-700" to="/landing">
+          View the demo page
+        </Link>
+      </p>
     </main>
   )
 }

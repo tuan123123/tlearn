@@ -25,7 +25,9 @@ class AuthService:
                 "email": payload.email.lower(),
                 "display_name": payload.display_name,
                 "hashed_password": hash_password(payload.password),
-                "language": "en",
+                "location_country": payload.location_country,
+                "language": language_from_country(payload.location_country),
+                "role": "user",
                 "created_at": datetime.now(timezone.utc),
             }
         )
@@ -46,3 +48,21 @@ class AuthService:
             access_token=create_access_token(str(user["_id"])),
             user=UserResponse.from_document(user),
         )
+
+
+def language_from_country(location_country: str) -> str:
+    normalized = location_country.strip().lower()
+    vietnam_values = {"vietnam", "viet nam", "việt nam", "vn"}
+    united_states_values = {
+        "united states",
+        "united states of america",
+        "usa",
+        "us",
+        "america",
+    }
+
+    if normalized in vietnam_values:
+        return "vi"
+    if normalized in united_states_values:
+        return "en"
+    return "en"

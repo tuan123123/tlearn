@@ -8,3 +8,19 @@ body {
   min-height: 100vh;
   background: #f8fafc;
 }
+
+.quiz-generation-step {
+  animation: quiz-generation-float 1.4s ease-in-out infinite alternate;
+}
+
+@keyframes quiz-generation-float {
+  from {
+    transform: translateY(0);
+    opacity: 0.72;
+  }
+
+  to {
+    transform: translateY(-6px);
+    opacity: 1;
+  }
+}

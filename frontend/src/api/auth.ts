@@ -4,6 +4,7 @@ import type { AuthResponse, User } from "./types"
 interface RegisterRequest {
   display_name: string
   email: string
+  location_country: string
   password: string
 }
 

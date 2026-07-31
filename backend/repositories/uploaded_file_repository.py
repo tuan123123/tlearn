@@ -24,6 +24,20 @@ class UploadedFileRepository:
         ).sort("uploaded_at", -1)
         return await cursor.to_list(length=100)
 
+    async def list_done_by_course_for_user(
+        self,
+        user_id: str,
+        course_id: str,
+    ) -> list[dict]:
+        cursor = self.collection.find(
+            {
+                "user_id": user_id,
+                "course_id": course_id,
+                "extraction_status": "done",
+            }
+        ).sort("uploaded_at", 1)
+        return await cursor.to_list(length=100)
+
     async def get_by_id_for_user(self, user_id: str, upload_id: str) -> dict | None:
         if not ObjectId.is_valid(upload_id):
             return None

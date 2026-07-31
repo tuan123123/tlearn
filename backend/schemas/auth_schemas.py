@@ -7,6 +7,7 @@ class RegisterRequest(BaseModel):
     email: EmailStr
     password: str = Field(min_length=8)
     display_name: str = Field(min_length=1, max_length=100)
+    location_country: str = Field(min_length=2, max_length=80)
 
 
 class LoginRequest(BaseModel):
@@ -18,7 +19,9 @@ class UserResponse(BaseModel):
     id: str
     email: EmailStr
     display_name: str
+    location_country: str
     language: str
+    role: str
     created_at: datetime
 
     @classmethod
@@ -27,7 +30,9 @@ class UserResponse(BaseModel):
             id=str(user["_id"]),
             email=user["email"],
             display_name=user["display_name"],
-            language=user["language"],
+            location_country=user.get("location_country", "United States"),
+            language=user.get("language", "en"),
+            role=user.get("role", "user"),
             created_at=user["created_at"],
         )
 

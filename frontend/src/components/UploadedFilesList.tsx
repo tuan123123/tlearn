@@ -7,9 +7,10 @@ import ExtractionStatusBadge from "./ExtractionStatusBadge"
 
 interface UploadedFilesListProps {
   courseId: string
+  onFilesChange?: (files: UploadedFileListItem[]) => void
 }
 
-function UploadedFilesList({ courseId }: UploadedFilesListProps) {
+function UploadedFilesList({ courseId, onFilesChange }: UploadedFilesListProps) {
   const uploads = useCourseUploads(courseId)
   const [files, setFiles] = useState<UploadedFileListItem[]>([])
 
@@ -18,6 +19,10 @@ function UploadedFilesList({ courseId }: UploadedFilesListProps) {
       setFiles(uploads.data)
     }
   }, [uploads.data])
+
+  useEffect(() => {
+    onFilesChange?.(files)
+  }, [files, onFilesChange])
 
   useEffect(() => {
     const activeFiles = files.filter((file) =>
