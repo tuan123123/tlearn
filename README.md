@@ -157,4 +157,4 @@ Frontend variables live in `frontend\.env`:
 
 - `VITE_API_URL`: backend API URL, usually `http://127.0.0.1:8000`
 
-Never commit real secrets. Use `.env.example` only for safe placeholder values.
+
