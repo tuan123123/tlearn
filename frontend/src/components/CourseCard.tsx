@@ -31,9 +31,12 @@ function CourseCard({ course }: CourseCardProps) {
   )
 
   return (
-    <article className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <article className="group border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-[var(--rule-strong)]">
       <Link className="block" to={`/courses/${course.id}`}>
-        <h2 className="text-xl font-bold text-slate-950">{course.name}</h2>
+        <p className="editorial-kicker text-[10px] uppercase tracking-[0.14em] text-[var(--accent)]">
+          Course file
+        </p>
+        <h2 className="mt-4 text-3xl font-medium text-slate-950">{course.name}</h2>
         <p className="mt-1 text-sm text-slate-600">{course.university}</p>
       </Link>
 

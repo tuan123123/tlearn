@@ -2,18 +2,18 @@ import { useState } from "react"
 import { Link, useLocation } from "react-router-dom"
 
 import FeedbackForm from "../components/FeedbackForm"
+import PublicPageHeader from "../components/PublicPageHeader"
 import type { Language } from "../i18n"
 
 const pageText = {
   en: {
-    demoPage: "Demo page",
     tryApp: "Try app",
     toggleLanguage: "Tiếng Việt",
-    eyebrow: "Feedback",
+    eyebrow: "Letters to Tlearn · Feedback",
     title: "Help shape the exam coach.",
     subtitle:
       "Report bugs, request features, flag content issues, or leave general thoughts. The smaller the friction, the better the product gets.",
-    examplesTitle: "Good feedback examples",
+    examplesTitle: "Good feedback is specific",
     examples: [
       "A quiz answer is marked wrong even though my explanation is correct.",
       "I want mock exams to show estimated exam readiness before I submit.",
@@ -21,14 +21,13 @@ const pageText = {
     ],
   },
   vi: {
-    demoPage: "Trang demo",
     tryApp: "Dùng thử",
     toggleLanguage: "English",
-    eyebrow: "Góp ý",
+    eyebrow: "Thư gửi Tlearn · Góp ý",
     title: "Giúp mình hoàn thiện exam coach.",
     subtitle:
       "Bạn có thể báo lỗi, đề xuất tính năng, báo vấn đề nội dung, hoặc gửi góp ý chung. Càng dễ góp ý, sản phẩm càng tốt hơn.",
-    examplesTitle: "Ví dụ góp ý hay",
+    examplesTitle: "Góp ý tốt thường rất cụ thể",
     examples: [
       "Một câu quiz bị chấm sai dù phần giải thích của mình đúng.",
       "Mình muốn bài thi thử hiện độ sẵn sàng trước khi nộp.",
@@ -50,54 +49,59 @@ function FeedbackPage() {
       : location.pathname
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,#bbf7d0,transparent_34%),linear-gradient(135deg,#f8fafc,#ecfeff)] px-6 py-8">
-      <div className="mx-auto max-w-6xl">
-        <nav className="flex items-center justify-between">
-          <Link className="text-lg font-black tracking-tight text-slate-950" to="/landing">
-            Tlearn
-          </Link>
-          <div className="flex flex-wrap justify-end gap-3 text-sm font-semibold">
+    <div className="editorial-public-page min-h-screen">
+      <PublicPageHeader />
+
+      <main className="mx-auto max-w-7xl px-5 py-12 sm:px-6 lg:px-8 lg:py-20">
+        <div className="editorial-kicker flex flex-wrap items-center justify-between gap-4 border-b border-[var(--rule-strong)] pb-5 text-xs uppercase tracking-[0.14em]">
+          <span className="text-[var(--accent)]">{text.eyebrow}</span>
+          <div className="flex items-center gap-3">
             <button
-              className="rounded-full border border-emerald-200 bg-white/70 px-4 py-2 text-emerald-800 shadow-sm"
+              className="min-h-11 border border-[var(--rule-strong)] px-4 text-[var(--ink)] transition hover:bg-[var(--surface)]"
               onClick={() => setLanguage(language === "en" ? "vi" : "en")}
               type="button"
             >
               {text.toggleLanguage}
             </button>
-            <Link className="rounded-full bg-white px-4 py-2 text-slate-700 shadow-sm" to="/landing">
-              {text.demoPage}
-            </Link>
-            <Link className="rounded-full bg-slate-950 px-4 py-2 text-white" to="/register">
+            <Link
+              className="inline-flex min-h-11 items-center bg-[var(--accent)] px-4 font-bold text-[var(--accent-ink)]"
+              to="/register"
+            >
               {text.tryApp}
             </Link>
           </div>
-        </nav>
+        </div>
 
-        <section className="grid gap-10 py-16 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-          <div>
-            <p className="text-sm font-black uppercase tracking-[0.25em] text-emerald-700">
-              {text.eyebrow}
-            </p>
-            <h1 className="mt-4 text-5xl font-black tracking-tight text-slate-950">
+        <section className="grid lg:grid-cols-12">
+          <div className="border-b border-[var(--rule)] py-10 lg:col-span-6 lg:border-b-0 lg:border-r lg:py-14 lg:pr-12">
+            <h1 className="editorial-display max-w-3xl text-5xl leading-[0.95] tracking-[-0.04em] sm:text-7xl">
               {text.title}
             </h1>
-            <p className="mt-5 text-lg leading-8 text-slate-600">{text.subtitle}</p>
-            <div className="mt-8 rounded-3xl border border-emerald-200 bg-white/80 p-6 shadow-sm backdrop-blur">
-              <p className="font-black text-slate-950">{text.examplesTitle}</p>
-              <ul className="mt-4 space-y-3 text-sm leading-6 text-slate-600">
-                {text.examples.map((example) => (
-                  <li key={example}>“{example}”</li>
+            <p className="mt-7 max-w-xl text-lg leading-8 text-[var(--muted)]">{text.subtitle}</p>
+
+            <div className="mt-12 border-y border-[var(--rule)] py-7">
+              <p className="editorial-kicker text-xs uppercase tracking-[0.14em] text-[var(--accent)]">
+                {text.examplesTitle}
+              </p>
+              <ol className="mt-6 space-y-5">
+                {text.examples.map((example, index) => (
+                  <li className="grid grid-cols-[2rem_1fr] gap-3 leading-7 text-[var(--muted)]" key={example}>
+                    <span className="editorial-kicker text-xs text-[var(--warm)]">0{index + 1}</span>
+                    <span>“{example}”</span>
+                  </li>
                 ))}
-              </ul>
+              </ol>
             </div>
           </div>
 
-          <div className="rounded-[2rem] border border-white bg-white/90 p-6 shadow-2xl shadow-emerald-900/10 backdrop-blur sm:p-8">
-            <FeedbackForm language={language} pageContext={`came from ${fromRoute}`} />
+          <div className="bg-[var(--panel)] py-10 lg:col-span-6 lg:py-14 lg:pl-12">
+            <div className="border border-[var(--rule-strong)] p-6 sm:p-8">
+              <FeedbackForm language={language} pageContext={`came from ${fromRoute}`} />
+            </div>
           </div>
         </section>
-      </div>
-    </main>
+      </main>
+    </div>
   )
 }
 

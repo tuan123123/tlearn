@@ -11,15 +11,15 @@ function PageBackActions() {
   return (
     <div className="flex flex-wrap gap-3">
       <button
-        className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-bold text-slate-700"
+        className="editorial-kicker border border-slate-300 px-4 py-3 text-xs font-bold uppercase tracking-[0.1em] text-slate-700 transition hover:bg-[var(--surface)]"
         type="button"
         onClick={() => navigate(-1)}
       >
         {text.previousPage}
       </button>
       <Link
-        className="rounded-xl bg-emerald-700 px-4 py-2 text-sm font-bold text-white"
-        to="/"
+        className="editorial-kicker bg-emerald-700 px-4 py-3 text-xs font-bold uppercase tracking-[0.1em] text-white transition hover:-translate-y-0.5"
+        to="/dashboard"
       >
         {text.dashboard}
       </Link>

@@ -1,6 +1,7 @@
 import { Navigate, Outlet } from "react-router-dom"
 
 import { useAuthStore } from "../store/authStore"
+import AppHeader from "./AppHeader"
 
 function ProtectedRoute() {
   const token = useAuthStore((state) => state.token)
@@ -9,7 +10,12 @@ function ProtectedRoute() {
     return <Navigate to="/login" replace />
   }
 
-  return <Outlet />
+  return (
+    <div className="editorial-app-layout min-h-screen">
+      <AppHeader />
+      <Outlet />
+    </div>
+  )
 }
 
 export default ProtectedRoute

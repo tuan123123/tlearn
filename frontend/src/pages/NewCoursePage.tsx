@@ -22,7 +22,7 @@ function NewCoursePage() {
 
   function onSubmit(values: CreateCourseRequest) {
     createCourse.mutate(values, {
-      onSuccess: () => navigate("/"),
+      onSuccess: () => navigate("/dashboard"),
     })
   }
 
