@@ -1,3 +1,4 @@
+import axios from "axios"
 import { useForm } from "react-hook-form"
 import { Link, Navigate } from "react-router-dom"
 
@@ -11,6 +12,27 @@ interface RegisterForm {
   location_country: string
   password: string
   confirm_password: string
+}
+
+function getRegistrationErrorMessage(error: unknown): string {
+  if (!axios.isAxiosError(error)) {
+    return "Registration failed. Please try again."
+  }
+
+  if (!error.response) {
+    return "Server Failed!"
+  }
+
+  const detail = error.response.data?.detail
+  if (typeof detail === "string") {
+    return detail
+  }
+
+  if (error.response.status === 422) {
+    return "Please check every registration field and try again."
+  }
+
+  return "Registration failed. Please try again."
 }
 
 function RegisterPage() {
@@ -144,7 +166,7 @@ function RegisterPage() {
 
             {createAccount.isError ? (
               <p className="border border-[var(--danger)] bg-[var(--danger-bg)] px-4 py-3 text-sm text-[var(--danger)] sm:col-span-2">
-                Registration failed. The email may already be registered.
+                {getRegistrationErrorMessage(createAccount.error)}
               </p>
             ) : null}
 
