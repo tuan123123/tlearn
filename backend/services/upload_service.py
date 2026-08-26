@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 from uuid import uuid4
 
 from fastapi import HTTPException, UploadFile, status
@@ -13,7 +14,8 @@ from schemas.upload_schemas import (
     UploadedFileListItem,
     UploadedFileResponse,
 )
-from services.extraction_service import build_storage_path, extract_text_from_file
+from services.extraction_service import extract_text_from_file
+from services.storage_service import StorageService, build_storage_key
 
 ALLOWED_EXTENSIONS = {".pdf": "pdf", ".pptx": "pptx"}
 MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024
@@ -24,6 +26,7 @@ class UploadService:
         self.database = database
         self.courses = CourseRepository(database)
         self.uploaded_files = UploadedFileRepository(database)
+        self.storage = StorageService()
 
     async def create_upload(
         self,
@@ -33,27 +36,40 @@ class UploadService:
     ) -> UploadCreateResponse:
         await self._verify_course_owner(user_id, course_id)
 
-        file_type = self._validate_file_type(file.filename)
+        original_filename = file.filename or "uploaded-file"
+        file_type = self._validate_file_type(original_filename)
         upload_id = uuid4().hex
-        storage_path = build_storage_path(user_id, course_id, upload_id, file.filename or "")
-        file_size = await self._save_upload(file, storage_path)
-
-        uploaded_file = await self.uploaded_files.create(
-            {
-                "course_id": course_id,
-                "user_id": user_id,
-                "original_filename": file.filename or "uploaded-file",
-                "file_type": file_type,
-                "file_size_bytes": file_size,
-                "storage_path": str(storage_path),
-                "extracted_text": None,
-                "page_refs": [],
-                "extraction_status": "pending",
-                "extraction_error": None,
-                "uploaded_at": datetime.now(timezone.utc),
-                "extracted_at": None,
-            }
+        storage_key = build_storage_key(
+            user_id,
+            course_id,
+            upload_id,
+            original_filename,
         )
+        file_size = await self._save_upload(file, storage_key)
+
+        try:
+            uploaded_file = await self.uploaded_files.create(
+                {
+                    "course_id": course_id,
+                    "user_id": user_id,
+                    "original_filename": original_filename,
+                    "file_type": file_type,
+                    "file_size_bytes": file_size,
+                    "storage_key": storage_key,
+                    "extracted_text": None,
+                    "page_refs": [],
+                    "extraction_status": "pending",
+                    "extraction_error": None,
+                    "uploaded_at": datetime.now(timezone.utc),
+                    "extracted_at": None,
+                }
+            )
+        except Exception:
+            try:
+                await self.storage.delete(storage_key)
+            except Exception:
+                pass
+            raise
 
         return UploadCreateResponse(
             file_id=str(uploaded_file["_id"]),
@@ -93,10 +109,16 @@ class UploadService:
         if uploaded_file is None:
             return
 
+        temporary_path: Path | None = None
+
         try:
             await uploaded_files.mark_processing(str(uploaded_file["_id"]))
+            temporary_path = await self.storage.download_to_temporary_file(
+                uploaded_file["storage_key"],
+                Path(uploaded_file["original_filename"]).suffix,
+            )
             extracted_text, page_refs = extract_text_from_file(
-                uploaded_file["storage_path"],
+                str(temporary_path),
                 uploaded_file["file_type"],
             )
             await uploaded_files.mark_done(
@@ -107,6 +129,9 @@ class UploadService:
             )
         except Exception as exc:
             await uploaded_files.mark_failed(str(uploaded_file["_id"]), str(exc))
+        finally:
+            if temporary_path is not None:
+                temporary_path.unlink(missing_ok=True)
 
     async def _verify_course_owner(self, user_id: str, course_id: str) -> None:
         course = await self.courses.get_by_id_for_user(user_id, course_id)
@@ -127,23 +152,28 @@ class UploadService:
 
         return file_type
 
-    async def _save_upload(self, file: UploadFile, storage_path: Path) -> int:
-        storage_path.parent.mkdir(parents=True, exist_ok=True)
+    async def _save_upload(self, file: UploadFile, storage_key: str) -> int:
+        temporary_file = NamedTemporaryFile(prefix="tlearn-upload-", delete=False)
+        temporary_path = Path(temporary_file.name)
         file_size = 0
 
-        with storage_path.open("wb") as saved_file:
-            while chunk := await file.read(1024 * 1024):
-                file_size += len(chunk)
-                if file_size > MAX_FILE_SIZE_BYTES:
-                    saved_file.close()
-                    storage_path.unlink(missing_ok=True)
-                    raise HTTPException(
-                        status_code=status.HTTP_400_BAD_REQUEST,
-                        detail="File is too large. Maximum upload size is 20MB",
-                    )
-                saved_file.write(chunk)
+        try:
+            with temporary_file:
+                while chunk := await file.read(1024 * 1024):
+                    file_size += len(chunk)
 
-        return file_size
+                    if file_size > MAX_FILE_SIZE_BYTES:
+                        raise HTTPException(
+                            status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="File is too large. Maximum upload size is 20MB",
+                        )
+
+                    temporary_file.write(chunk)
+
+            await self.storage.upload_from_path(temporary_path, storage_key)
+            return file_size
+        finally:
+            temporary_path.unlink(missing_ok=True)
 
 
 def get_file_type_from_filename(filename: str | None) -> str | None:

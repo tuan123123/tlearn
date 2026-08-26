@@ -1,14 +1,18 @@
 from functools import lru_cache
 import os
+from typing import Literal
+
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
 
 class Settings(BaseSettings):
     app_name: str = "Tlearn API"
     environment: str = "development"
     mongodb_url: str = "mongodb://localhost:27017"
     mongodb_db_name: str = "tlearn"
+    storage_backend: Literal["local", "gcs"] = "local"
+    gcs_upload_bucket: str = ""
+    gcp_project_id: str = ""
     jwt_secret: str = Field(default="")
     jwt_algorithm: str = "HS256"
     jwt_expire_minutes: int = 60

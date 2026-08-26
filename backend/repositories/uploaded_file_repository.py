@@ -20,7 +20,7 @@ class UploadedFileRepository:
     async def list_by_course_for_user(self, user_id: str, course_id: str) -> list[dict]:
         cursor = self.collection.find(
             {"user_id": user_id, "course_id": course_id},
-            {"extracted_text": 0, "page_refs": 0, "storage_path": 0},
+            {"extracted_text": 0, "page_refs": 0, "storage_key": 0},
         ).sort("uploaded_at", -1)
         return await cursor.to_list(length=100)
 

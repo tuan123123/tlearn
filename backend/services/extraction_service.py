@@ -1,4 +1,4 @@
-from pathlib import Path
+
 
 import fitz
 from pptx import Presentation
@@ -54,11 +54,4 @@ def extract_pptx_text(storage_path: str) -> list[PageRef]:
     return page_refs
 
 
-def build_storage_path(
-    user_id: str,
-    course_id: str,
-    upload_id: str,
-    original_filename: str,
-) -> Path:
-    safe_filename = Path(original_filename).name.replace(" ", "_")
-    return Path("uploads") / user_id / course_id / f"{upload_id}_{safe_filename}"
+

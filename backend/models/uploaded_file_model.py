@@ -13,7 +13,7 @@ class UploadedFileDocument(TypedDict):
     original_filename: str
     file_type: Literal["pdf", "pptx"]
     file_size_bytes: int
-    storage_path: str
+    storage_key: str
     extracted_text: str | None
     page_refs: list[PageRef]
     extraction_status: Literal["pending", "processing", "done", "failed"]

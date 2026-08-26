@@ -47,7 +47,6 @@ class UploadedFileListItem(BaseModel):
 
 class UploadedFileResponse(UploadedFileListItem):
     user_id: str
-    storage_path: str
     extracted_text: str | None
     page_refs: list[PageRefResponse]
 
@@ -60,7 +59,6 @@ class UploadedFileResponse(UploadedFileListItem):
             original_filename=uploaded_file["original_filename"],
             file_type=uploaded_file["file_type"],
             file_size_bytes=uploaded_file["file_size_bytes"],
-            storage_path=uploaded_file["storage_path"],
             extracted_text=uploaded_file["extracted_text"],
             page_refs=uploaded_file["page_refs"],
             extraction_status=uploaded_file["extraction_status"],
