@@ -74,7 +74,6 @@ export interface UploadedFileListItem {
 
 export interface UploadedFile extends UploadedFileListItem {
   user_id: string
-  storage_path: string
   extracted_text: string | null
   page_refs: PageRef[]
 }

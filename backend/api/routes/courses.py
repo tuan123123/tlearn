@@ -1,4 +1,4 @@
-from fastapi import APIRouter, BackgroundTasks, Depends, File, UploadFile
+from fastapi import APIRouter, Depends, File, UploadFile
 from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from api.dependencies import get_current_user
@@ -24,6 +24,7 @@ from schemas.study_guide_schemas import (
     StudyGuideResponse,
 )
 from services.course_service import CourseService
+from services.extraction_task_queue_service import ExtractionTaskQueueService
 from services.quiz_service import QuizService
 from services.score_history_service import ScoreHistoryService
 from services.study_guide_service import StudyGuideService
@@ -86,14 +87,19 @@ async def delete_course(
 @router.post("/{course_id}/uploads", response_model=UploadCreateResponse)
 async def upload_course_material(
     course_id: str,
-    background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     current_user: dict = Depends(get_current_user),
     database: AsyncIOMotorDatabase = Depends(get_database),
 ) -> UploadCreateResponse:
     upload_service = UploadService(database)
-    upload = await upload_service.create_upload(str(current_user["_id"]), course_id, file)
-    background_tasks.add_task(upload_service.extract_upload_text, upload.file_id)
+    upload = await upload_service.create_upload(
+        str(current_user["_id"]),
+        course_id,
+        file,
+    )
+
+    await ExtractionTaskQueueService(database).enqueue_extraction(upload.file_id)
+
     return upload
 
 

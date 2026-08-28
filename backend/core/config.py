@@ -6,10 +6,18 @@ from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
+    extraction_worker_audience: str = ""
+    task_queue_backend: Literal["local", "gcp"] = "local"
+    cloud_tasks_location: str = ""
+    cloud_tasks_queue: str = ""
+    extraction_worker_url: str = ""
+    cloud_tasks_invoker_service_account_email: str = ""
     app_name: str = "Tlearn API"
     environment: str = "development"
     mongodb_url: str = "mongodb://localhost:27017"
     mongodb_db_name: str = "tlearn"
+    mongodb_server_selection_timeout_ms: int = 30000
+    mongodb_connect_timeout_ms: int = 10000
     storage_backend: Literal["local", "gcs"] = "local"
     gcs_upload_bucket: str = ""
     gcp_project_id: str = ""

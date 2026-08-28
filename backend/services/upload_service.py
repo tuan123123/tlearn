@@ -5,8 +5,6 @@ from uuid import uuid4
 
 from fastapi import HTTPException, UploadFile, status
 from motor.motor_asyncio import AsyncIOMotorDatabase
-
-from core.database import get_database
 from repositories.course_repository import CourseRepository
 from repositories.uploaded_file_repository import UploadedFileRepository
 from schemas.upload_schemas import (
@@ -14,7 +12,6 @@ from schemas.upload_schemas import (
     UploadedFileListItem,
     UploadedFileResponse,
 )
-from services.extraction_service import extract_text_from_file
 from services.storage_service import StorageService, build_storage_key
 
 ALLOWED_EXTENSIONS = {".pdf": "pdf", ".pptx": "pptx"}
@@ -100,38 +97,6 @@ class UploadService:
                 detail="Upload not found",
             )
         return UploadedFileResponse.from_document(uploaded_file)
-
-    async def extract_upload_text(self, upload_id: str) -> None:
-        database = await get_database()
-        uploaded_files = UploadedFileRepository(database)
-        uploaded_file = await uploaded_files.get_by_id(upload_id)
-
-        if uploaded_file is None:
-            return
-
-        temporary_path: Path | None = None
-
-        try:
-            await uploaded_files.mark_processing(str(uploaded_file["_id"]))
-            temporary_path = await self.storage.download_to_temporary_file(
-                uploaded_file["storage_key"],
-                Path(uploaded_file["original_filename"]).suffix,
-            )
-            extracted_text, page_refs = extract_text_from_file(
-                str(temporary_path),
-                uploaded_file["file_type"],
-            )
-            await uploaded_files.mark_done(
-                str(uploaded_file["_id"]),
-                extracted_text,
-                page_refs,
-                datetime.now(timezone.utc),
-            )
-        except Exception as exc:
-            await uploaded_files.mark_failed(str(uploaded_file["_id"]), str(exc))
-        finally:
-            if temporary_path is not None:
-                temporary_path.unlink(missing_ok=True)
 
     async def _verify_course_owner(self, user_id: str, course_id: str) -> None:
         course = await self.courses.get_by_id_for_user(user_id, course_id)

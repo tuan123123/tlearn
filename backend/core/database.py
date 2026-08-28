@@ -1,11 +1,17 @@
 import asyncio
+import logging
 
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
+from pymongo.errors import PyMongoError
 
 from core.config import get_settings
 
 settings = get_settings()
 clients: dict[int, AsyncIOMotorClient] = {}
+logger = logging.getLogger(__name__)
+
+DATABASE_STARTUP_ATTEMPTS = 4
+DATABASE_STARTUP_RETRY_SECONDS = 5
 
 
 async def get_database() -> AsyncIOMotorDatabase:
@@ -15,8 +21,8 @@ async def get_database() -> AsyncIOMotorDatabase:
     if client is None:
         client = AsyncIOMotorClient(
             settings.mongodb_url,
-            serverSelectionTimeoutMS=5000,
-            connectTimeoutMS=5000,
+            serverSelectionTimeoutMS=settings.mongodb_server_selection_timeout_ms,
+            connectTimeoutMS=settings.mongodb_connect_timeout_ms,
         )
         clients[loop_id] = client
 
@@ -24,6 +30,23 @@ async def get_database() -> AsyncIOMotorDatabase:
 
 
 async def ensure_database_indexes(database: AsyncIOMotorDatabase) -> None:
+    for attempt in range(DATABASE_STARTUP_ATTEMPTS):
+        try:
+            await _create_database_indexes(database)
+            return
+        except PyMongoError:
+            if attempt == DATABASE_STARTUP_ATTEMPTS - 1:
+                raise
+
+            retry_delay = DATABASE_STARTUP_RETRY_SECONDS * (2**attempt)
+            logger.warning(
+                "Database startup connection failed; retrying in %s seconds",
+                retry_delay,
+            )
+            await asyncio.sleep(retry_delay)
+
+
+async def _create_database_indexes(database: AsyncIOMotorDatabase) -> None:
     indexed_collections = [
         "attempts",
         "courses",

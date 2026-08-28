@@ -1,5 +1,6 @@
 from fastapi.testclient import TestClient
 
+from core.config import Settings
 from main import create_app
 
 
@@ -10,6 +11,13 @@ def test_health_check() -> None:
 
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
+
+
+def test_mongodb_timeouts_allow_for_cloud_cold_starts() -> None:
+    settings = Settings(_env_file=None)
+
+    assert settings.mongodb_server_selection_timeout_ms == 30000
+    assert settings.mongodb_connect_timeout_ms == 10000
 
 
 def test_local_frontend_is_allowed_by_cors() -> None:
