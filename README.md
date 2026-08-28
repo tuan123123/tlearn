@@ -1,160 +1,236 @@
 # Tlearn
 
-Tlearn is an AI learning platform MVP. Phase 1 is a local Microeconomics AI Exam Coach foundation with FastAPI, MongoDB, JWT auth, and a React/Vite/TypeScript frontend.
+> A bilingual, AI-assisted Microeconomics exam coach that turns course materials into focused practice, diagnostic feedback, and personalized study plans.
 
-## Requirements
+[Live application](https://tlearn-web-bj5mphzx7q-uc.a.run.app) · [API documentation](https://tlearn-api-bj5mphzx7q-uc.a.run.app/docs) · [API health](https://tlearn-api-bj5mphzx7q-uc.a.run.app/health)
 
-- Python 3.11 or newer
-- Node.js 20 or newer
-- MongoDB running locally on `mongodb://localhost:27017`
+## Overview
 
-## Run the backend
+Tlearn helps students move from passive course materials to active exam preparation. Students upload their Microeconomics notes or slides, review AI-extracted topics, complete diagnostic quizzes and mock exams, and receive evidence-based reports showing their weak topics, skills, and Bloom's taxonomy levels.
 
-Open PowerShell:
+The application supports English and Vietnamese throughout the learning flow. A student's registration location sets the initial language, while the interface also provides a manual language control.
+
+## Key capabilities
+
+- **Secure accounts and courses** — JWT authentication and user-owned course workspaces.
+- **Course-material ingestion** — PDF and PPTX uploads up to 20 MB, with page- or slide-level text extraction.
+- **AI topic review** — maps English or Vietnamese course content to a controlled Microeconomics topic set and preserves source evidence.
+- **Diagnostic quizzes** — generates questions across topics, skills, and Bloom levels without exposing answers before submission.
+- **Weakness analysis** — reports topic accuracy, response time, skill gaps, Bloom-level performance, and question-by-question feedback.
+- **Personalized study guides** — creates targeted revision plans from a student's latest performance.
+- **Mock exams and progress tracking** — timed practice, readiness indicators, score history, and trend visualizations.
+- **Bilingual, accessible interface** — English/Vietnamese content, responsive layouts, and light/dark themes.
+- **Feedback collection** — accepts contextual feedback from authenticated or anonymous visitors, with rate limiting and admin triage endpoints.
+
+## Architecture
+
+```text
+React + Vite client
+        |
+        v
+FastAPI API ---------> MongoDB Atlas
+    |   |------------> OpenAI API
+    |   `------------> Local storage or Google Cloud Storage
+    |
+    `----> Cloud Tasks ----> Private extraction worker
+```
+
+Local development uses filesystem storage and in-process background extraction. The production deployment uses Cloud Run, Cloud Storage, Cloud Tasks, Secret Manager, a private worker service, and static outbound traffic through Cloud NAT.
+
+## Technology stack
+
+| Area | Technology |
+| --- | --- |
+| Frontend | React 19, TypeScript, Vite, React Router, TanStack Query, Zustand, Recharts, Tailwind CSS |
+| Backend | Python 3.12, FastAPI, Pydantic, Motor |
+| Database | MongoDB / MongoDB Atlas |
+| AI | OpenAI Python SDK |
+| File extraction | PyMuPDF, python-pptx |
+| Authentication | JWT with password hashing |
+| Production infrastructure | Docker, Google Cloud Run, Cloud Storage, Cloud Tasks, Secret Manager, VPC, Cloud NAT |
+| Testing | Pytest, TypeScript compiler, Vite production build |
+
+## Repository structure
+
+```text
+tlearn/
+├── backend/
+│   ├── api/routes/       # HTTP endpoints and request dependencies
+│   ├── core/             # Configuration, database, security, and error handling
+│   ├── models/           # MongoDB document shapes
+│   ├── repositories/     # Database access
+│   ├── schemas/          # Pydantic request and response validation
+│   ├── services/         # Business logic and AI workflows
+│   ├── tests/            # Backend test suite
+│   ├── main.py           # Public FastAPI application
+│   └── worker_main.py    # Private extraction-worker application
+├── frontend/
+│   └── src/
+│       ├── api/          # Typed API client functions
+│       ├── components/   # Reusable interface components
+│       ├── hooks/        # Data-fetching hooks
+│       ├── pages/        # Route-level screens
+│       └── store/        # Authentication and theme state
+├── AGENTS.md             # Repository development guidelines
+└── README.md
+```
+
+## Local development
+
+### Prerequisites
+
+- Python 3.12
+- Node.js 22 and npm
+- MongoDB Atlas connection string or a local MongoDB instance
+- OpenAI API key for AI-powered workflows
+
+### 1. Configure and run the backend
+
+From the repository root in PowerShell:
 
 ```powershell
-cd C:\Users\Tuan\tlearn\backend
-py -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install -r requirements.txt
+cd backend
+py -3.12 -m venv .venv
 Copy-Item .env.example .env
+.\.venv\Scripts\python.exe -m pip install --upgrade pip
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-Open `backend\.env` and replace `JWT_SECRET` with your own long random value.
+Edit `backend/.env` and provide at least these values:
 
-Then start the API:
-
-```powershell
-uvicorn main:app --reload
+```env
+MONGODB_URL=mongodb+srv://YOUR_USER:YOUR_PASSWORD@YOUR_CLUSTER.mongodb.net/
+MONGODB_DB_NAME=tlearn
+JWT_SECRET=replace-with-a-long-random-secret
+OPENAI_API_KEY=replace-with-your-openai-api-key
+FRONTEND_URL=http://localhost:5173
 ```
 
-Check these URLs:
-
-- `http://127.0.0.1:8000/health`
-- `http://127.0.0.1:8000/docs`
-
-## Run the frontend
-
-Open a second PowerShell window:
+Start the API:
 
 ```powershell
-cd C:\Users\Tuan\tlearn\frontend
+.\.venv\Scripts\python.exe -m uvicorn main:app --reload
+```
+
+Using the virtual environment's Python executable directly avoids PowerShell execution-policy issues. The local API is available at:
+
+- API: `http://127.0.0.1:8000`
+- Interactive documentation: `http://127.0.0.1:8000/docs`
+- Health check: `http://127.0.0.1:8000/health`
+
+### 2. Configure and run the frontend
+
+Open a second PowerShell window from the repository root:
+
+```powershell
+cd frontend
 npm install
 Copy-Item .env.example .env
 npm run dev
 ```
 
-Open `http://localhost:5173`.
+The default `frontend/.env` points to the local API:
 
-To try Phase 2 uploads:
+```env
+VITE_API_URL=http://127.0.0.1:8000
+```
 
-1. Register or log in.
-2. Create a Microeconomics course.
-3. Click the course card on the dashboard.
-4. Upload a `.pdf` or `.pptx` file from `/courses/:id/setup`.
-5. Watch the file status move from waiting/processing to ready.
+Open `http://localhost:5173` in a browser.
 
-Uploaded files are saved locally under `uploads\`. This folder is ignored by Git.
+## Configuration
 
-## Run checks
+Secrets belong in local `.env` files or a managed secret store; never commit them to source control. Both `.env` files are ignored by Git.
 
-Backend tests:
+### Backend settings
+
+| Variable | Purpose | Local default |
+| --- | --- | --- |
+| `MONGODB_URL` | MongoDB connection string | `mongodb://localhost:27017` |
+| `MONGODB_DB_NAME` | Application database | `tlearn` |
+| `JWT_SECRET` | Signs authentication tokens | No safe production default |
+| `JWT_EXPIRE_MINUTES` | Login-token lifetime | `60` |
+| `FRONTEND_URL` | Allowed production CORS origin | `http://localhost:5173` |
+| `OPENAI_API_KEY` | Authorizes AI workflows | Empty |
+| `OPENAI_TOPIC_MODEL` | Model used by AI services | `gpt-5.4-mini` |
+| `STORAGE_BACKEND` | `local` or `gcs` file storage | `local` |
+| `TASK_QUEUE_BACKEND` | `local` or `gcp` extraction scheduling | `local` |
+| `GCS_UPLOAD_BUCKET` | Production upload bucket | Empty |
+| `GCP_PROJECT_ID` | Google Cloud project identifier | Empty |
+
+See `backend/.env.example` for the complete infrastructure configuration, including Cloud Tasks and database timeout settings.
+
+### Frontend settings
+
+| Variable | Purpose |
+| --- | --- |
+| `VITE_API_URL` | Public base URL of the FastAPI service |
+
+Vite embeds frontend environment variables at build time. Rebuild the frontend image whenever `VITE_API_URL` changes.
+
+## Docker
+
+Build and run the backend:
 
 ```powershell
-cd C:\Users\Tuan\tlearn\backend
+docker build -t tlearn-api ./backend
+docker run --rm --env-file ./backend/.env -p 8000:8080 tlearn-api
+```
+
+Build and run the frontend against the local API:
+
+```powershell
+docker build --build-arg VITE_API_URL=http://localhost:8000 -t tlearn-web ./frontend
+docker run --rm -p 5173:8080 tlearn-web
+```
+
+If MongoDB runs directly on the Windows host, use `host.docker.internal` instead of `localhost` in the backend container's `MONGODB_URL`.
+
+## Quality checks
+
+Run backend tests:
+
+```powershell
+cd backend
 .\.venv\Scripts\python.exe -m pytest
 ```
 
-Frontend build:
+Run the frontend type check and production build:
 
 ```powershell
-cd C:\Users\Tuan\tlearn\frontend
+cd frontend
 npm run build
 ```
 
-## Phase 2 upload behavior
+Before committing a feature, review the working tree:
 
-The backend accepts PDF and PPTX files up to 20MB.
-
-When you upload a file:
-
-1. FastAPI saves it to `uploads\{user_id}\{course_id}\...`.
-2. MongoDB gets an `uploaded_files` document with `extraction_status = "pending"`.
-3. A background task extracts text.
-4. The same MongoDB document is updated with:
-   - `extracted_text`
-   - `page_refs`
-   - `extraction_status = "done"` or `"failed"`
-
-DOCX is mentioned in the product goal.
-DOCX is mentioned in the product goal.
-
-## Phase 3 topic review behavior
-
-After at least one uploaded file has `extraction_status = "done"`, the course setup page shows topic review.
-
-When you click **Extract Topics**:
-
-1. FastAPI loads extracted text from ready uploads.
-2. The backend asks OpenAI to map the material to the fixed Microeconomics topic template.
-3. AI topics are validated with Pydantic.
-4. Invalid topics are skipped.
-5. Valid topics are saved in MongoDB under the `topics` collection.
-6. The frontend lets you edit, delete, add, approve, and confirm topics.
-
-Set these backend variables in `backend\.env`:
-
-```env
-OPENAI_API_KEY=your-real-openai-api-key
-OPENAI_TOPIC_MODEL=gpt-5.4-mini
+```powershell
+git status --short
+git diff --check
+git diff
 ```
 
-The topic names are stored as canonical English template values in MongoDB. The frontend has an English/Vietnamese toggle, so Vietnamese labels are shown in the UI without changing the stored topic identity.
+## Production deployment
 
-For example:
+The current production environment runs in Google Cloud region `us-central1`:
 
-- `Supply and Demand` → `Cung và cầu`
-- `Price Elasticity` → `Độ co giãn theo giá`
-- `Consumer Theory` → `Lý thuyết người tiêu dùng`
+- The frontend and public API run as separate Cloud Run services.
+- File uploads are stored in Cloud Storage.
+- Cloud Tasks sends authenticated extraction jobs to a private Cloud Run worker.
+- Secret Manager supplies the MongoDB URL, JWT secret, and OpenAI API key.
+- Direct VPC egress and Cloud NAT provide a fixed outbound IP for the MongoDB Atlas access list.
 
-Vietnamese documents are supported by the topic extraction prompt. The AI is told to recognize Vietnamese aliases such as `ngoại tác`, `hàng hóa công`, `độc quyền`, `cạnh tranh hoàn hảo`, and `thương mại quốc tế`, then map them back to the fixed English topic keys. Evidence quotes stay in the original document language.
+Production secrets must not be passed as Docker build arguments or stored in container images. Grant each service account access only to the resources it needs.
 
-## Phase 4 diagnostic quiz behavior
+## Security notes
 
-After topics are approved, open `/courses/:id/diagnostic` and click **Generate Diagnostic Quiz**.
+- Uploaded files are scoped to the authenticated user and course.
+- Protected routes verify JWT ownership before returning course data.
+- Quiz answers and explanations are withheld until submission.
+- CORS is restricted to the configured frontend origin in production.
+- Anonymous feedback is rate-limited by IP; authenticated feedback is rate-limited by user ID.
+- MongoDB Atlas should allow only the production NAT IP and trusted administrative IPs.
 
-The backend will:
+## Project status
 
-1. Generate Bloom-tagged questions from approved topics and extracted materials.
-2. Save questions in MongoDB under `questions`.
-3. Create a diagnostic quiz under `quizzes`.
-4. Return quiz questions without `correct_answer` or `explanation`.
-5. Save submitted answers under `attempts`.
-6. Reveal correct answers and explanations only from `/quizzes/:id/results`.
-
-Frontend pages:
-
-- `/courses/:id/diagnostic`
-- `/quizzes/:id`
-- `/quizzes/:id/results`
-
-Important safety rule: `GET /quizzes/:id` intentionally strips answers before submission. Use `/quizzes/:id/results` only after submission to review answers.
-
-## Environment variables
-
-Backend variables live in `backend\.env`:
-
-- `MONGODB_URL`: MongoDB server URL
-- `MONGODB_DB_NAME`: database name
-- `JWT_SECRET`: secret key used to sign JWTs
-- `JWT_EXPIRE_MINUTES`: how long login tokens last
-- `FRONTEND_URL`: production frontend URL for CORS
-- `ENVIRONMENT`: use `development` locally
-- `OPENAI_API_KEY`: OpenAI API key used for topic extraction
-- `OPENAI_TOPIC_MODEL`: model used for topic extraction
-
-Frontend variables live in `frontend\.env`:
-
-- `VITE_API_URL`: backend API URL, usually `http://127.0.0.1:8000`
-
+Tlearn is an actively developed MVP. The production deployment is suitable for controlled testing, but operational monitoring, automated CI/CD, backups, and a custom domain should be completed before a broad public launch.
 
